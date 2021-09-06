@@ -1,14 +1,93 @@
 \documentclass{article}
 \usepackage[utf8]{inputenc}
+\usepackage[most]{tcolorbox}
 
 \title{AMTE - Report}
 \author{Patrick Diehl}
 \date{July 2021}
 
+
+
 \begin{document}
 
 \maketitle
 
+\newcommand{\answerbox}[2]{
+\begin{tcolorbox}[breakable, enhanced]
+\textbf{#1}: \\
+#2
+\end{tcolorbox}}
+
+
+
+%\fbox{\parbox{\textwidth}{\textbf{#1}
+%#2}}\vspace{0.125cm}}
+\setlength{\parskip}{6pt}
+
+\begin{abstract}
+    The next generation of supercomputers will break the exascale barrier, and tremendous amounts of work have been invested into identifying and overcoming the challenges of the exascale era. These challenges include load-balancing, fast data transfers, and efficient resource utilization. Task-based models and runtime systems have shown that it is possible to address these challenges by providing additional mechanisms such as oversubscription, task/data locality, shared memory, and data dependence-driven execution. The advantages of task-based programming on modern and future HPC systems are explored. It will gather developers, users, and proponents of these models and systems to share experience, discuss how they meet the challenges posed by Exascale system architectures, and explore opportunities for increased performance, robustness, and full-system utilization. This report describes the objectives, activities, and outcomes of the workshop Asynchronous Many-Task systems for Exascale (AMTE) 2021 held in conjunction with the 27th International European Conference on Parallel and Distributed Computing on August 30, 2021.
+\end{abstract}
+
 \section{Introduction}
+
+
+
+
+\section{Panel’s Chosen Questions}
+\label{sec:questions}
+The panel was moderated by Irina Demeshko (Los Alamos National Laboratory) and the following panelists enhanced the discussion: Laxmikant (Sanjay) Kale (University of Illinois at Urbana-Champaign), Martin Berzins (University of Utah), Mike Bauer (NVIDIA), and Thomas Fahringer (University of Innsbruck). Hartmut Kaiser (Louisiana State University) could not attend the panel, however, he added his answers to the report.
+
+\subsection{Why should one choose to use AMT models?}
+
+
+\answerbox{Mike Bauer}{
+   Software composability. Implicitly parallel AMT models (the only ones most people should pay attention to) can make it possible build seamlessly composable software abstractions. Should never require synchronization on unnecessary data movement when passing data and control between libraries in a user program. Software composition is the ONLY thing that matters to adoption, how easy is it to develop code. Anything that is explicitly parallel works against composability of software; it's the reason that parallel programming is hard. Implicitly parallel AMT will let you compose whole ecosystems of software libraries like you do in Python/MATLAB/R/Julia without ever needing to be aware of how it is distributed and parallelized.
+   }
+
+\subsection{What kinds of applications will benefit from using AMT models and programming systems?}
+
+\answerbox{Mike Bauer}{All kinds: HPC, machine learning, data analytics, visualization. The value is in composition of those areas, but that's only easy to do with implicitly parallel AMT.
+}
+
+
+\subsection{ For what kinds of applications is AMT-style programming better suited to creating maintainable code than message passing-style code?}
+
+\answerbox{Mike Bauer}{All kinds: MPI is being abused by the vast majority of its users. It was never designed to be something that people wrote code to directly. It was supposed to serve as a middleware layer on which higher level programming systems were built, but nobody ever built those other systems. So instead we've abandoned many non-CS users that need better solutions into a massive dark-age of distributed explicitly parallel programming. Task-based programming is one path out of the darkness because you can make programs implicitly parallel at scale and compose software. Communication and computation can be overlapped automatically and in different ways depending on the target machine without needing to rewrite any code. It's time for everyone to step out of the darkness and into the light.}
+
+
+\subsection{Are AMT programs more difficult to debug because it is (1) easier to create race conditions and (2) more difficult to get anything like a stack trace? What is being done to make debugging of large-scale AMT applications easier?}
+
+\answerbox{Mike Bauer}{Both of these statements are just wrong on their face when it comes to implicitly parallel AMT. It's impossible to make race conditions in implicitly parallel AMT. The system does dependence analysis for you and assuming the system is checked by a formal verification tool (like the good systems are), then you can rest assured that you'll never ever encounter a race condition. Second, anyone that thinks that there isn't a concept of a stack in implicitly parallel AMT isn't paying very close attention. In implicitly parallel AMT you have a tree of tasks, just like you would have a tree of function calls in a sequential program. Tasks are just "special" functions where the programming system can look to extract parallelism; therefore a stack trace always exists and debugging proceeds as normal. Finally, any AMT system should make debugging significantly easier because you can change scope and analyze the program in different ways: dataflow graphs, event graphs, bounds checks, privilege checks, critical path analyses, all examples of program analyses that can be done with AMT that are impossible in less structured programming models.}
+
+
+\subsection{What sort of language support is needed for AMT programming?}
+
+\answerbox{Mike Bauer}{It's not what they support it's what they don't support. The best languages don't have any pointer types or strongly discourage their use. I'm appalled that there was no mention of the best languages for AMT on here: Python, Lua, MATLAB, R, even Fortran got it right (until Fortran 90). We don't need to get rid of C++, but C++ developers need to start working with higher-level types for abstractions of their data and stop falling back to pointers as the lowest common denominator for passing data back and forth between computations. Pointers are for building systems, not for building applications. All those other languages already understand that.}
+
+
+
+
+\subsubsection{What advantage do newer languages like Go, Julia, etc., have for AMT programming, and can/should they displace C++ for scientific applications?}
+
+   
+\subsubsection{Many languages have added “await” or some variant as new keywords for processing asynchronous code. How important is this feature for the success of the AMT paradigm?}   
+    
+\answerbox{Mike Bauer}{They're nice to have and might make some features easier to implement, but in general are really irrelevant when it comes to AMT. Most AMT systems already have their own green threads for fast context switching. In implicitly parallel AMT you would never explicitly call await anyway.}
+        
+    
+
+\subsection{How does one choose which AMT programming model among others?}
+
+\answerbox{Mike Bauer}{Pick the one the allows for the best software composition at scale. The hard part about building big applications at scale is getting different pieces of software to work together on thousands of nodes. How does my simulation work with my uncertainty quantification library work with my in-situ analysis work my machine learning library work with my visualization framework? If your AMT doesn't solve that problem, then you're missing the forest for the trees and you'll end up with all the same problems as you have today with MPI. Implicitly parallel AMT is pretty much the only way to get true composability at that scale with AMT.}
+
+
+\section{Keynote and invited talk}
+
+
+\section{Accepted papers}
+The following papers were accepted:
+
+
+\section{Conclusion}
 
 \end{document}
